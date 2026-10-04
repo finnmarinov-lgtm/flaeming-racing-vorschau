@@ -4,7 +4,9 @@
   'use strict';
   const $ = (s, r = document) => r.querySelector(s);
   const SB = { url: 'https://yzzipjtounvktdhhvrnt.supabase.co', key: 'sb_publishable_OCNFFT4wa4CMaHyhcLAY4A_u2flZF1s' };
-  const DEMO = new URLSearchParams(location.search).has('demo');
+  const VORSCHAU = (document.querySelector('meta[name="fr-modus"]') || {}).content === 'vorschau';
+  if (VORSCHAU) document.documentElement.classList.add('vorschau');
+  const DEMO = new URLSearchParams(location.search).has('demo') || VORSCHAU;
 
   async function rpc(fn, body) {
     let res;

@@ -1,6 +1,9 @@
 /* Crew-Seite: gleiche Welt wie die Startseite, ruhiger */
 .crew-seite{animation:none}
 .crew-titel{margin:0 0 0 auto;color:var(--text-secondary)}
+html.vorschau .crew-seite .vorschau-chip,html.vorschau .vorschau-chip{margin-left:auto}
+html.vorschau .crew-titel{margin-left:14px}
+.crew-karte .vorschau-hinweis{margin:0 0 22px}
 .crew-seite .nav .btn{margin-left:18px}
 .crew-main{width:min(980px,calc(100vw - 32px));margin:0 auto;padding:120px 0 80px;display:grid;gap:24px}
 .crew-karte{padding:clamp(22px,4vw,40px);border-radius:24px;background:linear-gradient(180deg,var(--panel),#13151b);box-shadow:0 0 0 1px var(--linie),0 40px 80px -60px #000}

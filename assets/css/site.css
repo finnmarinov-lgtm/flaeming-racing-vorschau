@@ -72,6 +72,13 @@ main:focus{outline:none}
 .nav-links a:hover{color:var(--text-primary)}
 .nav-links a:hover::after{transform:scaleX(1)}
 
+/* ---------- Vorschau-Hinweise (nur mit <meta name="fr-modus" content="vorschau">) ---------- */
+.vorschau-chip,.vorschau-hinweis{display:none}
+html.vorschau .vorschau-chip{display:inline-flex;align-items:center;flex:none;margin-left:14px;padding:6px 11px;border:1px solid var(--accent);border-radius:999px;
+  color:var(--accent);font-size:.625rem;line-height:1;background:rgba(16,17,22,.55)}
+html.vorschau .vorschau-hinweis{display:block;margin:0;padding:12px 14px;border-radius:12px;background:var(--accent-muted);color:var(--text-primary);font-size:.875rem}
+@media (max-width:960px){html.vorschau .vorschau-chip{margin-left:auto}html.vorschau .nav .btn{margin-left:10px}}
+
 /* ---------- Knöpfe ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 24px;border-radius:999px;
   font:600 1rem/1.1 var(--f-text);letter-spacing:.01em;text-decoration:none;cursor:pointer;border:1px solid transparent;text-shadow:none;

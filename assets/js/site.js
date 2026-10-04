@@ -19,7 +19,10 @@
     key: 'sb_publishable_OCNFFT4wa4CMaHyhcLAY4A_u2flZF1s' // öffentlicher Schlüssel, darf im Code stehen
   };
   const params = new URLSearchParams(location.search);
-  const DEMO = params.has('demo');
+  // Vorschau-Schalter im Seitenkopf: <meta name="fr-modus" content="vorschau"> = Testdaten und Vorschau-Hinweise
+  const VORSCHAU = (document.querySelector('meta[name="fr-modus"]') || {}).content === 'vorschau';
+  if (VORSCHAU) root.classList.add('vorschau');
+  const DEMO = params.has('demo') || VORSCHAU;
 
   async function rpc(fn, body) {
     let res;
