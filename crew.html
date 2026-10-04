@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Crew-Liste · Flaeming Racing</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#101116">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101116'/%3E%3Cpath d='M7 30h7c6 0 9-8 19-8 9 0 14 4 18 8l5 2v4l-5 2c-4 4-9 8-18 8-10 0-13-8-19-8H7z' fill='%23c9cdd3'/%3E%3Crect x='51' y='31' width='8' height='6' rx='2' fill='%23e8b40e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/fonts/fonts.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="stylesheet" href="assets/css/crew.css">
+</head>
+<body class="crew-seite">
+<header class="nav fest">
+  <a class="nav-logo" href="index.html" aria-label="Zur Startseite">
+    <img src="assets/bilder/logo-schrift.png" alt="Flaeming Racing" width="756" height="294">
+  </a>
+  <p class="crew-titel mono">Crew-Liste</p>
+  <button class="btn btn-glas btn-klein" id="abmelden" type="button" hidden>Abmelden</button>
+</header>
+
+<main class="crew-main" id="main" tabindex="-1">
+  <!-- Anmelden mit Crew-Code -->
+  <section class="crew-karte" id="tuer">
+    <p class="kicker">Nur für die Crew</p>
+    <h1 class="h-sek">Wer fährt mit?</h1>
+    <p class="lead">Mit dem Crew-Code siehst du alle Anmeldungen und kannst Termine eintragen.</p>
+    <form id="code-form" class="crew-form" novalidate>
+      <div class="feld">
+        <label for="code">Crew-Code</label>
+        <input id="code" type="password" autocomplete="current-password" required>
+      </div>
+      <p class="fehler" id="code-fehler" role="alert"></p>
+      <button class="btn btn-gelb" type="submit">Liste öffnen</button>
+    </form>
+  </section>
+
+  <!-- Die Liste -->
+  <div id="liste" hidden>
+    <section class="crew-karte">
+      <h2 class="crew-h" id="termin-h">Termin eintragen</h2>
+      <form id="termin-form" class="crew-form crew-raster" novalidate>
+        <input type="hidden" id="t-id">
+        <div class="feld"><label for="t-datum">Datum</label><input id="t-datum" type="date" required></div>
+        <div class="feld"><label for="t-km">Kilometer <span class="frei">freiwillig</span></label><input id="t-km" type="number" min="1" max="1000" inputmode="numeric" placeholder="50"></div>
+        <div class="feld"><label for="t-status">Status</label>
+          <select id="t-status"><option value="geplant">geplant</option><option value="verschoben">verschoben</option><option value="abgesagt">abgesagt</option></select></div>
+        <div class="feld feld-breit"><label for="t-hinweis">Hinweis <span class="frei">freiwillig</span></label><input id="t-hinweis" type="text" maxlength="140" placeholder="z. B. Verschoben wegen Regen"></div>
+        <p class="fehler feld-breit" id="termin-fehler" role="alert"></p>
+        <div class="knoepfe feld-breit">
+          <button class="btn btn-gelb" type="submit" id="termin-speichern">Termin speichern</button>
+          <button class="btn btn-glas" type="button" id="termin-neu" hidden>Neuer Termin statt Ändern</button>
+        </div>
+        <p class="hilfe feld-breit">Ein neuer Termin übernimmt alle Anmeldungen, die noch ohne Termin sind. Termine verschwinden 30 Tage nach der Ausfahrt von selbst, mit ihren Anmeldungen.</p>
+      </form>
+    </section>
+
+    <div id="termine"></div>
+
+    <section class="crew-karte crew-klein">
+      <h2 class="crew-h">Crew-Code ändern</h2>
+      <form id="neu-form" class="crew-form crew-raster" novalidate>
+        <div class="feld"><label for="neu-code">Neuer Code</label><input id="neu-code" type="password" autocomplete="new-password" minlength="6"></div>
+        <div class="feld"><label for="neu-code2">Noch einmal</label><input id="neu-code2" type="password" autocomplete="new-password" minlength="6"></div>
+        <p class="fehler feld-breit" id="neu-fehler" role="alert"></p>
+        <div class="knoepfe feld-breit"><button class="btn btn-glas" type="submit">Code ändern</button></div>
+      </form>
+    </section>
+  </div>
+  <p class="crew-status" id="status" aria-live="polite"></p>
+</main>
+
+<template id="tpl-termin">
+  <section class="crew-karte termin">
+    <div class="termin-kopf">
+      <div>
+        <p class="mono termin-status"></p>
+        <h2 class="crew-h termin-datum"></h2>
+        <p class="termin-hinweis"></p>
+      </div>
+      <div class="knoepfe">
+        <button class="btn btn-glas btn-klein" data-aktion="kopieren" type="button">Namen kopieren</button>
+        <button class="btn btn-glas btn-klein" data-aktion="bearbeiten" type="button">Bearbeiten</button>
+        <button class="btn btn-glas btn-klein btn-gefahr" data-aktion="loeschen" type="button">Termin löschen</button>
+      </div>
+    </div>
+    <p class="termin-anzahl"></p>
+    <ul class="leute" role="list"></ul>
+  </section>
+</template>
+
+<script src="assets/js/crew.js" defer></script>
+</body>
+</html>

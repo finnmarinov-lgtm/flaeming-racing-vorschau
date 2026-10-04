@@ -1,0 +1,10 @@
+/* Impressum und Datenschutz */
+.recht-seite{animation:none}
+.recht-seite .nav .btn{margin-left:auto}
+.recht{width:min(760px,calc(100vw - 32px));margin:0 auto;padding:130px 0 72px}
+.recht .h-sek{max-width:none}
+.recht h2{font:800 clamp(1.4rem,2.6vw,1.8rem)/1.1 var(--f-display);text-transform:uppercase;margin:44px 0 12px}
+.recht p{color:var(--text-secondary);margin:0 0 14px;max-width:68ch}
+.recht a{color:var(--text-primary)}
+.platzhalter{color:var(--accent) !important;font-weight:600}
+.stand{margin-top:48px !important}
