@@ -124,6 +124,19 @@
   const ring = $('.ring', hero);
   const cue = $('.cue', hero);
   const VW = 2752, VH = 1536, FX = 1378, FY = 760;
+  const szene = {
+    tor: $('.torclip img', stage), glow: $('.torglow', stage), beam: $('.beam', stage),
+    dunst: $('.dunst-ebene', stage), waende: $('.waende', stage)
+  };
+  const masse = { bw: innerWidth, bh: 0, top: 0, range: 1 };
+  function masseLesen() {
+    masse.bw = innerWidth;
+    masse.bh = wrap.clientHeight;
+    masse.top = hero.getBoundingClientRect().top + scrollY;
+    masse.h = hero.offsetHeight;
+    masse.range = Math.max(1, masse.h - innerHeight);
+  }
+  masseLesen();
   const bands = $$('.band', hero).map((el, i, all) => ({
     el,
     a: parseFloat(el.dataset.a),
@@ -141,9 +154,7 @@
   let ladeK = 0, ladeStart = 0, ladeFertig = false;
 
   function progress() {
-    const range = hero.offsetHeight - innerHeight;
-    if (range <= 0) return 0;
-    return clamp(-hero.getBoundingClientRect().top / range, 0, 1);
+    return clamp((scrollY - masse.top) / masse.range, 0, 1);   // ohne Layout zu lesen: Maße kommen aus masseLesen()
   }
 
   function bandWerte(bd, p) {
@@ -162,25 +173,32 @@
     const d = easeIO(clamp((p - 0.04) / 0.70, 0, 1));
     const w = 1 - smooth(0.05, 0.9, d);
     const z = 1 + 0.06 * (1 - Math.pow(1 - p, 2));
-    const s = Math.max(innerWidth / VW, wrap.clientHeight / VH) * z;
-    let tx = innerWidth / 2 - FX * s;
-    let ty = wrap.clientHeight / 2 - FY * s;
-    tx = clamp(tx, innerWidth - VW * s, 0);
-    ty = clamp(ty, wrap.clientHeight - VH * s, 0);
+    const s = Math.max(masse.bw / VW, masse.bh / VH) * z;
+    let tx = masse.bw / 2 - FX * s;
+    let ty = masse.bh / 2 - FY * s;
+    tx = clamp(tx, masse.bw - VW * s, 0);
+    ty = clamp(ty, masse.bh - VH * s, 0);
     const t = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) scale(${s.toFixed(5)})`;
     if (t !== lastT) { stage.style.transform = t; lastT = t; }
+    // Alles direkt als transform/opacity: der Grafikchip verschiebt nur Ebenen, nichts muss neu gemalt werden
     if (Math.abs(d - lastD) > 0.0008) {
-      stage.style.setProperty('--d', d.toFixed(4)); lastD = d;
-      bands[0].el.style.setProperty('--hub', (d * 934 * s).toFixed(1));   // Band 1 fährt mit dem Tor hoch
+      lastD = d;
+      const hoch = `translate3d(0,${(-d * 934).toFixed(1)}px,0)`;
+      szene.tor.style.transform = hoch;
+      szene.glow.style.transform = hoch;
+      szene.glow.style.opacity = (0.3 + d * 0.45).toFixed(3);
+      szene.beam.style.opacity = (d * 0.9).toFixed(3);
+      szene.dunst.style.opacity = (0.22 + d * 0.6).toFixed(3);
+      bands[0].el.style.translate = `0 ${(-d * 934 * s).toFixed(1)}px`;   // Band 1 fährt mit dem Tor hoch
     }
-    if (Math.abs(w - lastW) > 0.002) { stage.style.setProperty('--w', w.toFixed(3)); lastW = w; }
+    if (Math.abs(w - lastW) > 0.002) { szene.waende.style.opacity = w.toFixed(3); lastW = w; }
     const c = 1 - smooth(0, 0.05, p);
-    if (Math.abs(c - lastCue) > 0.01) { cue.style.setProperty('--cue', c.toFixed(2)); lastCue = c; }
+    if (Math.abs(c - lastCue) > 0.01) { cue.style.opacity = c.toFixed(2); lastCue = c; }
     for (const bd of bands) {
       const { op, k } = bandWerte(bd, p);
       if (bd.ecke) {   // Ecken-Abdunklung folgt ihrem Band
         const e = op * (0.35 + 0.65 * k);
-        if (Math.abs(e - bd.e) > 0.004) { bd.ecke.style.setProperty('--e', e.toFixed(3)); bd.e = e; }
+        if (Math.abs(e - bd.e) > 0.004) { bd.ecke.style.opacity = e.toFixed(3); bd.e = e; }
       }
       if (Math.abs(op - bd.op) > 0.004) { bd.el.style.opacity = op.toFixed(3); bd.op = op; }
       if (Math.abs(k - bd.k) > 0.008 || (k === 1 && bd.k !== 1) || (k === 0 && bd.k !== 0)) { bd.el.style.setProperty('--k', k.toFixed(3)); bd.k = k; }
@@ -249,6 +267,7 @@
     addEventListener('scroll', onScroll, { passive: true });
     bands.forEach(b => { b.op = -1; b.k = -1; b.e = -1; b.inert = null; });
     lastT = ''; lastD = -1; lastW = -1; lastCue = -1;
+    masseLesen();
     target = shown = progress();
     render(shown);
     wecken();
@@ -258,6 +277,7 @@
     scrubAn = false;
     root.classList.remove('scrub');
     removeEventListener('scroll', onScroll);
+    masseLesen();
     if (rafId !== null) { cancelAnimationFrame(rafId); rafId = null; }
     bands.forEach(b => { b.el.inert = false; });
   }
@@ -270,13 +290,13 @@
     wrap.classList.toggle('aus-sicht', !onScreen);
     if (onScreen) onScroll();
   }).observe(hero);
-  addEventListener('resize', () => { lastT = ''; if (scrubAn) { target = shown = progress(); render(shown); } });
+  addEventListener('resize', () => { masseLesen(); lastT = ''; navPruefen(); if (scrubAn) { target = shown = progress(); render(shown); } });
 
   /* ================= Einblenden, Pausen, Navigation ================= */
   const nav = $('#nav');
   let navFest = null;
   function navPruefen() {
-    const fest = hero.getBoundingClientRect().bottom < 120;
+    const fest = masse.top + masse.h - scrollY < 120;
     if (fest !== navFest) { nav.classList.toggle('fest', fest); navFest = fest; }
   }
   addEventListener('scroll', navPruefen, { passive: true });
@@ -295,7 +315,7 @@
   // Absicherung für sehr schnelles Wischen: Was schon vorbeigescrollt ist, gilt als eingeblendet
   let vorbeiGeplant = false;
   addEventListener('scroll', () => {
-    if (vorbeiGeplant || !offen.length) return;
+    if (vorbeiGeplant || !offen.length || scrollY < masse.top + masse.h - innerHeight * 1.2) return;   // im Held gibt es nichts einzublenden
     vorbeiGeplant = true;
     requestAnimationFrame(() => {
       vorbeiGeplant = false;

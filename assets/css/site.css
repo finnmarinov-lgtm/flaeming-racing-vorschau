@@ -50,11 +50,11 @@ main:focus{outline:none}
 .env-glow{position:absolute;left:50%;bottom:-38vh;width:140vw;height:70vh;transform:translateX(-50%);
   background:radial-gradient(closest-side,rgba(238,180,111,.13),rgba(210,140,102,.05) 55%,rgba(238,180,111,0));
   animation:atmen 64s ease-in-out -20s infinite alternate}
-.env-haze{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+.env-haze{position:absolute;border-radius:50%;opacity:.5}
 .env-haze.h1{left:-10vw;top:20vh;width:60vw;height:40vh;background:radial-gradient(closest-side,rgba(143,163,194,.10),rgba(143,163,194,0));animation:ziehen 96s ease-in-out -30s infinite alternate}
 .env-haze.h2{right:-15vw;top:55vh;width:55vw;height:45vh;background:radial-gradient(closest-side,rgba(97,99,153,.12),rgba(97,99,153,0));animation:ziehen 120s ease-in-out -70s infinite alternate-reverse}
 .env-haze.h3{left:30vw;top:-10vh;width:50vw;height:35vh;background:radial-gradient(closest-side,rgba(143,163,194,.07),rgba(143,163,194,0));animation:ziehen 140s ease-in-out -10s infinite alternate}
-.env-grain{position:absolute;inset:-50%;opacity:.07;mix-blend-mode:overlay;
+.env-grain{position:absolute;inset:-50%;opacity:.04;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.8'/%3E%3C/svg%3E")}
 @keyframes atmen{from{opacity:.65;transform:translateX(-50%) scale(1)}to{opacity:1;transform:translateX(-50%) scale(1.08)}}
 @keyframes ziehen{from{transform:translate3d(0,0,0)}to{transform:translate3d(12vw,-6vh,0)}}
@@ -64,7 +64,7 @@ main:focus{outline:none}
   padding:14px max(20px,calc((100vw - 1180px)/2));height:72px;transition:background .5s var(--ease-out),box-shadow .5s var(--ease-out),backdrop-filter .5s}
 .nav.fest{background:rgba(16,17,22,.78);backdrop-filter:blur(14px) saturate(1.2);-webkit-backdrop-filter:blur(14px) saturate(1.2);box-shadow:0 1px 0 var(--linie)}
 .nav-logo{display:block;flex:none}
-.nav-logo img{height:40px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))}
+.nav-logo img{height:52px;width:auto;filter:drop-shadow(0 2px 8px rgba(0,0,0,.6))}
 .nav-links{display:flex;gap:26px;margin-left:auto}
 .nav-links a{font:500 .8125rem/1 var(--f-mono);letter-spacing:.14em;text-transform:uppercase;text-decoration:none;color:var(--text-secondary);
   padding:10px 0;position:relative;transition:color .3s var(--ease-out)}
@@ -85,8 +85,8 @@ html.vorschau .vorschau-hinweis{display:block;margin:0;padding:12px 14px;border-
   transition:transform .35s var(--ease-out),background-color .35s var(--ease-out),border-color .35s var(--ease-out),box-shadow .35s var(--ease-out),color .35s var(--ease-out)}
 .btn-gelb{background:var(--accent);color:var(--accent-text);box-shadow:0 8px 26px -10px rgba(232,180,14,.65)}
 .btn-gelb:hover{background:var(--accent-hover);transform:translateY(-2px);box-shadow:0 14px 34px -12px rgba(232,180,14,.75)}
-.btn-glas{background:rgba(238,240,243,.07);color:var(--text-primary);border-color:var(--linie-stark);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.btn-glas:hover{background:rgba(238,240,243,.13);border-color:rgba(238,240,243,.6);transform:translateY(-2px)}
+.btn-glas{background:rgba(16,17,22,.5);color:var(--text-primary);border-color:var(--linie-stark)}
+.btn-glas:hover{background:rgba(48,51,62,.62);border-color:rgba(238,240,243,.6);transform:translateY(-2px)}
 .btn-klein{min-height:40px;padding:9px 18px;font-size:.9375rem}
 .btn-gross{min-height:56px;padding:16px 30px;font-size:1.0625rem;width:100%}
 .btn:active{transform:translateY(0) scale(.98)}
@@ -106,34 +106,37 @@ html.vorschau .vorschau-hinweis{display:block;margin:0;padding:12px 14px;border-
 .hero{position:relative}
 .wrap{position:relative;height:100vh;height:100svh;min-height:560px;overflow:hidden;
   background:#0b0b0f url('../hero/garage-offen-1920.jpg') 50% 50%/cover no-repeat}
-.stage{display:none;position:absolute;left:0;top:0;width:2752px;height:1536px;transform-origin:0 0;will-change:transform;--d:0;--w:1}
+.wrap{contain:paint}
+.stage{display:none;position:absolute;left:0;top:0;width:2752px;height:1536px;transform-origin:0 0;will-change:transform}
 .stage img{max-width:none}
 .lay{position:absolute;left:0;top:0;width:2752px;height:1536px;display:block}
-.waende{opacity:var(--w);will-change:opacity}
+/* Für Handys: keine Weichzeichner und keine Überblend-Modi in der Szene. Alles, was sich bewegt, setzt das Skript
+   direkt als transform oder opacity, damit der Grafikchip nur Ebenen verschiebt und nichts neu malen muss. */
+.waende{will-change:opacity}
 .torclip{position:absolute;left:866px;top:278px;width:1024px;height:934px;overflow:hidden}
-.torclip img{display:block;width:1024px;height:934px;transform:translate3d(0,calc(var(--d) * -934px),0);will-change:transform}
-.torglow{position:absolute;left:836px;width:1084px;top:1172px;height:80px;transform:translate3d(0,calc(var(--d) * -934px),0);
-  background:radial-gradient(ellipse 58% 46% at 50% 50%,rgba(255,176,92,.6),rgba(255,140,40,0) 70%);mix-blend-mode:screen;opacity:calc(.3 + var(--d) * .45)}
-.beam{clip-path:polygon(866px 1212px,1890px 1212px,2440px 1536px,310px 1536px);
-  background:linear-gradient(180deg,rgba(255,180,96,.36),rgba(255,150,60,.08) 70%,rgba(255,150,60,0));mix-blend-mode:screen;opacity:calc(var(--d) * .9)}
-.dunst{position:absolute;border-radius:50%;filter:blur(46px);mix-blend-mode:screen;opacity:calc(.22 + var(--d) * .6);animation:wabern 72s ease-in-out infinite alternate}
-.dunst.d1{left:640px;top:520px;width:960px;height:440px;background:radial-gradient(closest-side,rgba(150,175,215,.32),rgba(150,175,215,0));animation-delay:-14s}
-.dunst.d2{left:1440px;top:360px;width:820px;height:540px;background:radial-gradient(closest-side,rgba(140,165,210,.26),rgba(140,165,210,0));animation-duration:94s;animation-delay:-41s}
-.dunst.d3{left:880px;top:980px;width:1140px;height:320px;background:radial-gradient(closest-side,rgba(255,190,120,.24),rgba(255,190,120,0));animation-duration:82s;animation-delay:-27s}
-.dunst.d4{left:300px;top:200px;width:700px;height:500px;background:radial-gradient(closest-side,rgba(143,163,194,.16),rgba(143,163,194,0));animation-duration:110s;animation-delay:-63s}
+.torclip img{display:block;width:1024px;height:934px;will-change:transform}
+.torglow{position:absolute;left:836px;width:1084px;top:1172px;height:80px;opacity:.3;will-change:transform,opacity;
+  background:radial-gradient(ellipse 58% 46% at 50% 50%,rgba(255,176,92,.5),rgba(255,140,40,0) 70%)}
+.beam{clip-path:polygon(866px 1212px,1890px 1212px,2440px 1536px,310px 1536px);opacity:0;will-change:opacity;
+  background:linear-gradient(180deg,rgba(255,182,100,.3),rgba(255,150,60,.07) 70%,rgba(255,150,60,0))}
+.dunst-ebene{position:absolute;inset:0;opacity:.22;will-change:opacity}
+.dunst{position:absolute;border-radius:50%;animation:wabern 72s ease-in-out infinite alternate}
+.dunst.d1{left:600px;top:480px;width:1040px;height:520px;background:radial-gradient(closest-side,rgba(150,175,215,.3),rgba(150,175,215,.12) 55%,rgba(150,175,215,0));animation-delay:-14s}
+.dunst.d2{left:1420px;top:330px;width:900px;height:600px;background:radial-gradient(closest-side,rgba(140,165,210,.24),rgba(140,165,210,.1) 55%,rgba(140,165,210,0));animation-duration:94s;animation-delay:-41s}
+.dunst.d3{left:840px;top:960px;width:1220px;height:360px;background:radial-gradient(closest-side,rgba(255,190,120,.22),rgba(255,190,120,.08) 55%,rgba(255,190,120,0));animation-duration:82s;animation-delay:-27s}
 @keyframes wabern{from{transform:translate3d(-60px,12px,0) scale(1)}to{transform:translate3d(80px,-34px,0) scale(1.16)}}
 .scrim{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(10,10,16,.62) 0,rgba(10,10,16,0) 20%),radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%)}
 
 /* Ecken-Abdunklung: nur während Band 2 (links) und Band 3 (rechts) zu sehen, damit der helle Boden die Schrift nicht schluckt */
-.ecke{display:none;position:absolute;inset:0;pointer-events:none;opacity:var(--e,0)}
+.ecke{display:none;position:absolute;inset:0;pointer-events:none;opacity:0;will-change:opacity}
 .ecke-l{background:radial-gradient(ellipse 95% 85% at 0% 100%,rgba(5,5,10,.86) 0%,rgba(5,5,10,.74) 50%,rgba(5,5,10,0) 88%)}
 .ecke-r{background:radial-gradient(ellipse 95% 85% at 100% 100%,rgba(5,5,10,.86) 0%,rgba(5,5,10,.74) 50%,rgba(5,5,10,0) 88%)}
 html.scrub .ecke{display:block}
 
 /* Bänder über der Szene */
 .bands{display:none}
-.band{position:absolute;isolation:isolate;opacity:0;text-shadow:var(--tshadow);--k:0}
+.band{position:absolute;isolation:isolate;opacity:0;text-shadow:var(--tshadow);--k:0;will-change:opacity,transform}
 .band::before{content:"";position:absolute;inset:-18% -12%;z-index:-1;pointer-events:none;opacity:calc(.25 + .75 * var(--k));
   background:radial-gradient(ellipse 66% 60% at 50% 50%,rgba(5,5,10,var(--sa,.66)) 0%,rgba(5,5,10,calc(var(--sa,.66) * .66)) 46%,rgba(5,5,10,0) 76%)}
 .band .btn{text-shadow:none}
@@ -147,7 +150,7 @@ html.scrub .ecke{display:block}
    Band 4 bleibt in der Toröffnung über Himmel und Baumspitzen. So reicht wenig Abdunklung, und die Torkanten,
    das Chrom und der Abendhimmel bleiben sichtbar. */
 .b1::before,.b4::before{inset:-24% -14%;background:radial-gradient(ellipse 72% 72% at 50% 50%,rgba(5,5,10,var(--sa)) 0%,rgba(5,5,10,var(--sa)) 58%,rgba(5,5,10,0) 100%)}
-.b1{width:min(640px,46vw);translate:0 calc(var(--hub,0) * -1px)}
+.b1{width:min(640px,46vw)}
 .b1 .h-held{font-size:clamp(2.2rem,4.9vw,5.6rem)}
 .b4{width:min(600px,40vw)}
 .b4 .h-held{font-size:clamp(2.2rem,4.4vw,4.6rem)}
@@ -179,7 +182,7 @@ html.scrub .ecke{display:block}
 .statisch .knoepfe{justify-content:center;margin-top:26px}
 
 .cue{display:none;position:absolute;left:50%;bottom:28px;transform:translateX(-50%);flex-direction:column;align-items:center;gap:10px;
-  font:500 .6875rem/1 var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--text-primary);text-shadow:var(--tshadow);opacity:var(--cue,1);transition:opacity .4s}
+  font:500 .6875rem/1 var(--f-mono);letter-spacing:.2em;text-transform:uppercase;color:var(--text-primary);text-shadow:var(--tshadow);transition:opacity .4s}
 .cue i{width:1px;height:42px;background:linear-gradient(180deg,rgba(238,240,243,.9),rgba(238,240,243,0));animation:tropfen 2.4s var(--ease-io) -1s infinite}
 @keyframes tropfen{0%{transform:scaleY(0);transform-origin:top}45%{transform:scaleY(1);transform-origin:top}55%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
 .ring{display:none;position:absolute;right:22px;bottom:22px;width:30px;height:30px;color:var(--glow);transform:rotate(-90deg);transition:opacity .6s var(--ease-out)}
@@ -199,7 +202,7 @@ html.scrub .ring{display:block}
 .auspuff{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .rohr{fill:none;stroke:url(#chrom);stroke-width:10;stroke-linecap:butt;stroke-linejoin:round}
 .rohr-kante{fill:none;stroke:#07080b;stroke-width:13;stroke-linecap:butt;stroke-linejoin:round}
-.rohr-glut{fill:none;stroke:rgba(238,180,111,.22);stroke-width:22;stroke-linecap:round;filter:blur(10px)}
+.rohr-glut{fill:none;stroke:rgba(238,180,111,.09);stroke-width:24;stroke-linecap:round}
 .rohr-ende{fill:#1b1d23;stroke:#c9cdd3;stroke-width:3}
 
 /* ---------- Abschnitte allgemein ---------- */
@@ -378,7 +381,7 @@ html.scrub .ring{display:block}
 .fuss{width:var(--rand);margin:0 auto;padding:72px 0 calc(48px + env(safe-area-inset-bottom));border-top:1px solid var(--linie);
   display:grid;gap:18px;justify-items:center;text-align:center}
 .fuss-oben{display:grid;gap:12px;justify-items:center}
-.fuss-logo{width:150px;height:auto}
+.fuss-logo{width:200px;height:auto}
 .fuss-oben p{margin:0;color:var(--text-secondary)}
 .fuss-links{display:flex;flex-wrap:wrap;gap:8px 26px;justify-content:center}
 .fuss-links a{color:var(--text-primary);text-decoration:none;font-weight:500;padding:8px 2px;border-bottom:1px solid transparent;transition:border-color .3s}
@@ -393,6 +396,7 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
 
 /* ---------- Touch ---------- */
 @media (pointer:coarse){
+  .nav.fest{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(16,17,22,.94)}
   .btn{min-height:48px}
   .nav-links a{padding:14px 0}
   .fuss-links a{padding:12px 4px}
@@ -410,9 +414,9 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   .nachricht{padding:0}
 }
 @media (max-width:720px){
-  :root{--rand:calc(100vw - 32px)}
+  :root{--rand:calc(100vw - 32px);--tshadow:0 1px 2px rgba(5,5,10,.92),0 4px 16px rgba(5,5,10,.75)}
   .nav{height:64px;padding:12px 16px}
-  .nav-logo img{height:34px}
+  .nav-logo img{height:44px}
   .b1,.b2,.b3,.b4{left:16px;right:16px;width:auto;transform:none;text-align:center;top:13vh;bottom:auto}
   html.scrub .ecke{display:none}
   .b2{--sa:.84} .b3{--sa:.84;top:25vh}
