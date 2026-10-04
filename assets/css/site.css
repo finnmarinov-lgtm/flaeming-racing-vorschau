@@ -118,18 +118,32 @@ main:focus{outline:none}
 .scrim{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(10,10,16,.62) 0,rgba(10,10,16,0) 20%),radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%)}
 
+/* Ecken-Abdunklung: nur während Band 2 (links) und Band 3 (rechts) zu sehen, damit der helle Boden die Schrift nicht schluckt */
+.ecke{display:none;position:absolute;inset:0;pointer-events:none;opacity:var(--e,0)}
+.ecke-l{background:radial-gradient(ellipse 95% 85% at 0% 100%,rgba(5,5,10,.86) 0%,rgba(5,5,10,.74) 50%,rgba(5,5,10,0) 88%)}
+.ecke-r{background:radial-gradient(ellipse 95% 85% at 100% 100%,rgba(5,5,10,.86) 0%,rgba(5,5,10,.74) 50%,rgba(5,5,10,0) 88%)}
+html.scrub .ecke{display:block}
+
 /* Bänder über der Szene */
 .bands{display:none}
 .band{position:absolute;isolation:isolate;opacity:0;text-shadow:var(--tshadow);--k:0}
 .band::before{content:"";position:absolute;inset:-18% -12%;z-index:-1;pointer-events:none;opacity:calc(.25 + .75 * var(--k));
   background:radial-gradient(ellipse 66% 60% at 50% 50%,rgba(5,5,10,var(--sa,.66)) 0%,rgba(5,5,10,calc(var(--sa,.66) * .66)) 46%,rgba(5,5,10,0) 76%)}
 .band .btn{text-shadow:none}
-.b1{left:50%;top:21vh;width:min(880px,90vw);transform:translateX(-50%);text-align:center;--sa:.8}
+.b1{left:50%;top:21vh;width:min(880px,90vw);transform:translateX(-50%);text-align:center;--sa:.58}
 .b1 .kicker{color:var(--text-primary);opacity:.86}
-.b2{left:max(24px,5vw);bottom:15vh;width:min(560px,40vw);--sa:.66}
-.b3{right:max(24px,5vw);bottom:15vh;width:min(560px,40vw);text-align:right;--sa:.66}
-.b4{left:50%;top:19vh;width:min(920px,92vw);transform:translateX(-50%);text-align:center;--sa:.72}
+.b2{left:max(24px,5vw);bottom:15vh;width:min(560px,40vw);--sa:.76}
+.b3{right:max(24px,5vw);bottom:15vh;width:min(560px,40vw);text-align:right;--sa:.76}
+.b4{left:50%;top:22vh;width:min(920px,92vw);transform:translateX(-50%);text-align:center;--sa:.5}
 .b4 .unter{margin-left:auto;margin-right:auto}
+/* Band 1 steht auf dem Tor wie eine Beschriftung und fährt beim Öffnen ein Stück mit hoch.
+   Band 4 bleibt in der Toröffnung über Himmel und Baumspitzen. So reicht wenig Abdunklung, und die Torkanten,
+   das Chrom und der Abendhimmel bleiben sichtbar. */
+.b1::before,.b4::before{inset:-24% -14%;background:radial-gradient(ellipse 72% 72% at 50% 50%,rgba(5,5,10,var(--sa)) 0%,rgba(5,5,10,var(--sa)) 58%,rgba(5,5,10,0) 100%)}
+.b1{width:min(640px,46vw);translate:0 calc(var(--hub,0) * -1px)}
+.b1 .h-held{font-size:clamp(2.2rem,4.9vw,5.6rem)}
+.b4{width:min(600px,40vw)}
+.b4 .h-held{font-size:clamp(2.2rem,4.4vw,4.6rem)}
 .b4 .knoepfe{justify-content:center;margin-top:26px}
 
 /* zerlegter Text */
@@ -393,6 +407,10 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   .nav{height:64px;padding:12px 16px}
   .nav-logo img{height:34px}
   .b1,.b2,.b3,.b4{left:16px;right:16px;width:auto;transform:none;text-align:center;top:13vh;bottom:auto}
+  html.scrub .ecke{display:none}
+  .b2{--sa:.84} .b3{--sa:.84;top:25vh}
+  .b1,.b4{width:auto}
+  .b4 .h-held{font-size:clamp(2.4rem,11vw,3.4rem)}
   .band::before{inset:-30% -16px -34%;background:radial-gradient(ellipse 82% 64% at 50% 50%,rgba(5,5,10,var(--sa,.66)) 0%,rgba(5,5,10,calc(var(--sa,.66) * .74)) 52%,rgba(5,5,10,0) 80%)}
   .b1{--sa:.88}
   .b2 .unter,.b3 .unter{margin-left:auto;margin-right:auto}

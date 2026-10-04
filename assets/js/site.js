@@ -128,7 +128,8 @@
     ramp: el.dataset.ramp ? parseFloat(el.dataset.ramp) : null,
     erste: i === 0,
     letzte: i === all.length - 1,
-    op: -1, k: -1, inert: null
+    ecke: i === 1 ? $('#ecke-l') : i === 2 ? $('#ecke-r') : null,
+    op: -1, k: -1, e: -1, inert: null
   }));
 
   let scrubAn = false;
@@ -165,12 +166,19 @@
     ty = clamp(ty, wrap.clientHeight - VH * s, 0);
     const t = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) scale(${s.toFixed(5)})`;
     if (t !== lastT) { stage.style.transform = t; lastT = t; }
-    if (Math.abs(d - lastD) > 0.0008) { stage.style.setProperty('--d', d.toFixed(4)); lastD = d; }
+    if (Math.abs(d - lastD) > 0.0008) {
+      stage.style.setProperty('--d', d.toFixed(4)); lastD = d;
+      bands[0].el.style.setProperty('--hub', (d * 934 * s).toFixed(1));   // Band 1 fährt mit dem Tor hoch
+    }
     if (Math.abs(w - lastW) > 0.002) { stage.style.setProperty('--w', w.toFixed(3)); lastW = w; }
     const c = 1 - smooth(0, 0.05, p);
     if (Math.abs(c - lastCue) > 0.01) { cue.style.setProperty('--cue', c.toFixed(2)); lastCue = c; }
     for (const bd of bands) {
       const { op, k } = bandWerte(bd, p);
+      if (bd.ecke) {   // Ecken-Abdunklung folgt ihrem Band
+        const e = op * (0.35 + 0.65 * k);
+        if (Math.abs(e - bd.e) > 0.004) { bd.ecke.style.setProperty('--e', e.toFixed(3)); bd.e = e; }
+      }
       if (Math.abs(op - bd.op) > 0.004) { bd.el.style.opacity = op.toFixed(3); bd.op = op; }
       if (Math.abs(k - bd.k) > 0.008 || (k === 1 && bd.k !== 1) || (k === 0 && bd.k !== 0)) { bd.el.style.setProperty('--k', k.toFixed(3)); bd.k = k; }
       const inert = op < 0.5;
@@ -236,7 +244,7 @@
     scrubAn = true;
     root.classList.add('scrub');
     addEventListener('scroll', onScroll, { passive: true });
-    bands.forEach(b => { b.op = -1; b.k = -1; b.inert = null; });
+    bands.forEach(b => { b.op = -1; b.k = -1; b.e = -1; b.inert = null; });
     lastT = ''; lastD = -1; lastW = -1; lastCue = -1;
     target = shown = progress();
     render(shown);
