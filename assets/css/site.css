@@ -125,6 +125,18 @@ html.vorschau .vorschau-hinweis{display:block;margin:0;padding:12px 14px;border-
 .dunst.d2{left:1420px;top:330px;width:900px;height:600px;background:radial-gradient(closest-side,rgba(140,165,210,.24),rgba(140,165,210,.1) 55%,rgba(140,165,210,0));animation-duration:94s;animation-delay:-41s}
 .dunst.d3{left:840px;top:960px;width:1220px;height:360px;background:radial-gradient(closest-side,rgba(255,190,120,.22),rgba(255,190,120,.08) 55%,rgba(255,190,120,0));animation-duration:82s;animation-delay:-27s}
 @keyframes wabern{from{transform:translate3d(-60px,12px,0) scale(1)}to{transform:translate3d(80px,-34px,0) scale(1.16)}}
+/* Übergang in die Seite: Nachtschleier (Szene wird dunkler) und die Nacht, die sich von unten darüberschiebt */
+.nachtschleier{display:none;position:absolute;inset:0;pointer-events:none;background:#07080b;opacity:0;will-change:opacity}
+html.scrub .nachtschleier{display:block}
+.nacht{display:none}
+html.scrub .nacht{display:block;position:relative;z-index:2;height:100vh;margin-top:-100vh;pointer-events:none;
+  background:linear-gradient(180deg,rgba(16,17,22,0) 0%,rgba(16,17,22,.5) 30%,rgba(16,17,22,.86) 55%,rgba(16,17,22,.98) 78%,var(--canvas) 100%)}
+html.scrub .crew{position:relative;z-index:3;margin-top:-26vh;padding-top:24px}
+/* Unter dem Held läuft die flache Seitenfarbe weich in den Hintergrund mit Dunst aus (sonst bleibt eine Kante) */
+html.scrub .nacht::after,html:not(.scrub) .hero::after{content:"";position:absolute;left:0;right:0;top:100%;height:30vh;pointer-events:none;
+  background:linear-gradient(180deg,var(--canvas),rgba(16,17,22,0))}
+/* Ohne Torfahrt (reduzierte Bewegung, kein JavaScript): weicher Verlauf unten am Standbild */
+html:not(.scrub) .wrap::after{content:"";position:absolute;inset:auto 0 0 0;height:30%;pointer-events:none;background:linear-gradient(180deg,rgba(16,17,22,0),var(--canvas))}
 .scrim{position:absolute;inset:0;pointer-events:none;
   background:linear-gradient(180deg,rgba(10,10,16,.62) 0,rgba(10,10,16,0) 20%),radial-gradient(ellipse 120% 90% at 50% 45%,rgba(10,10,18,0) 35%,rgba(10,10,18,.62) 100%)}
 
@@ -189,7 +201,7 @@ html.scrub .ecke{display:block}
 .ring.fertig{opacity:0}
 
 /* Scroll-Modus (JavaScript an, keine reduzierte Bewegung) */
-html.scrub .hero{height:520vh}
+html.scrub .hero{height:670vh}   /* 520vh Torfahrt + 150vh Rausfahren */
 html.scrub .wrap{position:sticky;top:0;background:#0b0b0f}
 html.scrub .stage{display:block}
 html.scrub .bands{display:block}
@@ -198,7 +210,7 @@ html.scrub .cue{display:flex}
 html.scrub .ring{display:block}
 
 /* ---------- Auspuff: das Markenzeichen am linken Rand ---------- */
-.auspuff-feld{position:absolute;left:0;width:90px;pointer-events:none;z-index:1}
+.auspuff-feld{position:absolute;left:0;width:90px;pointer-events:none;z-index:3}   /* über der Nacht, wie die Crew */
 .auspuff{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .rohr{fill:none;stroke:url(#chrom);stroke-width:10;stroke-linecap:butt;stroke-linejoin:round}
 .rohr-kante{fill:none;stroke:#07080b;stroke-width:13;stroke-linecap:butt;stroke-linejoin:round}

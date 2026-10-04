@@ -124,17 +124,28 @@
   const ring = $('.ring', hero);
   const cue = $('.cue', hero);
   const VW = 2752, VH = 1536, FX = 1378, FY = 760;
+  // Toröffnung im Bild (870..1885 x 292..1175), etwas nach innen gerückt: Am Ende der Ausfahrt liegt der Ausschnitt ganz darin
+  const OEFFNUNG = { x0: 884, x1: 1871, y0: 332, y1: 1135 };
   const szene = {
     tor: $('.torclip img', stage), glow: $('.torglow', stage), beam: $('.beam', stage),
     dunst: $('.dunst-ebene', stage), waende: $('.waende', stage)
   };
-  const masse = { bw: innerWidth, bh: 0, top: 0, range: 1 };
+  const masse = { bw: innerWidth, bh: 0, top: 0, h: 0, range: 1, ende: 1 };
   function masseLesen() {
     masse.bw = innerWidth;
     masse.bh = wrap.clientHeight;
     masse.top = hero.getBoundingClientRect().top + scrollY;
     masse.h = hero.offsetHeight;
     masse.range = Math.max(1, masse.h - innerHeight);
+    // Die Torfahrt belegt 420vh der Scrollstrecke, danach kommt die Ausfahrt (150vh). Held ist 670vh hoch.
+    masse.ende = root.classList.contains('scrub') ? Math.min(1, (4.2 * masse.h / 6.7) / masse.range) : 1;
+    hero.dataset.ende = masse.ende.toFixed(4);   // für die Prüfwerkzeuge
+    // Ausfahrt: so weit heranfahren, dass Torrahmen, Sturz und Boden ganz aus dem Bild sind (am Laptop mehr als am Handy)
+    const s0 = Math.max(masse.bw / VW, masse.bh / VH), o = OEFFNUNG;
+    const sEnde = Math.max(s0 * 1.85, masse.bw / (o.x1 - o.x0), masse.bh / (o.y1 - o.y0));
+    masse.zEnde = sEnde / s0;
+    masse.fxEnde = clamp(FX, o.x0 + masse.bw / 2 / sEnde, o.x1 - masse.bw / 2 / sEnde);
+    masse.fyEnde = clamp(860, o.y0 + masse.bh / 2 / sEnde, o.y1 - masse.bh / 2 / sEnde);
   }
   masseLesen();
   const bands = $$('.band', hero).map((el, i, all) => ({
@@ -150,7 +161,8 @@
 
   let scrubAn = false;
   let target = 0, shown = 0, rafId = null, lastTick = 0, onScreen = true;
-  let lastT = '', lastD = -1, lastW = -1, lastCue = -1;
+  let lastT = '', lastD = -1, lastW = -1, lastCue = -1, lastNacht = -1;
+  const schleier = $('#nachtschleier');
   let ladeK = 0, ladeStart = 0, ladeFertig = false;
 
   function progress() {
@@ -170,12 +182,18 @@
   }
 
   function render(p) {
-    const d = easeIO(clamp((p - 0.04) / 0.70, 0, 1));
+    const q = Math.min(1, p / masse.ende);                                          // Torfahrt 0..1
+    const e = masse.ende < 1 ? clamp((p - masse.ende) / (1 - masse.ende), 0, 1) : 0;   // Ausfahrt 0..1
+    const d = easeIO(clamp((q - 0.04) / 0.70, 0, 1));
     const w = 1 - smooth(0.05, 0.9, d);
-    const z = 1 + 0.06 * (1 - Math.pow(1 - p, 2));
+    const zq = 1 + 0.06 * (1 - Math.pow(1 - q, 2));
+    const ze = easeIO(clamp((e - 0.06) / 0.8, 0, 1));                              // Rausfahren: durchs Tor auf die Straße
+    const z = zq * Math.pow(masse.zEnde / zq, ze);   // gleichmäßig wirkende Fahrt (Zoom im Verhältnis, nicht linear)
+    const fx = FX + (masse.fxEnde - FX) * ze;
+    const fy = FY + (masse.fyEnde - FY) * ze;
     const s = Math.max(masse.bw / VW, masse.bh / VH) * z;
-    let tx = masse.bw / 2 - FX * s;
-    let ty = masse.bh / 2 - FY * s;
+    let tx = masse.bw / 2 - fx * s;
+    let ty = masse.bh / 2 - fy * s;
     tx = clamp(tx, masse.bw - VW * s, 0);
     ty = clamp(ty, masse.bh - VH * s, 0);
     const t = `translate3d(${tx.toFixed(1)}px,${ty.toFixed(1)}px,0) scale(${s.toFixed(5)})`;
@@ -192,10 +210,13 @@
       bands[0].el.style.translate = `0 ${(-d * 934 * s).toFixed(1)}px`;   // Band 1 fährt mit dem Tor hoch
     }
     if (Math.abs(w - lastW) > 0.002) { szene.waende.style.opacity = w.toFixed(3); lastW = w; }
-    const c = 1 - smooth(0, 0.05, p);
+    const nacht = 0.5 * smooth(0.3, 1, e);
+    if (Math.abs(nacht - lastNacht) > 0.004) { schleier.style.opacity = nacht.toFixed(3); lastNacht = nacht; }
+    const c = 1 - smooth(0, 0.05, q);
     if (Math.abs(c - lastCue) > 0.01) { cue.style.opacity = c.toFixed(2); lastCue = c; }
     for (const bd of bands) {
-      const { op, k } = bandWerte(bd, p);
+      let { op, k } = bandWerte(bd, q);
+      if (bd.letzte) op *= 1 - smooth(0.04, 0.4, e);   // Schlusstext blendet beim Rausfahren aus
       if (bd.ecke) {   // Ecken-Abdunklung folgt ihrem Band
         const e = op * (0.35 + 0.65 * k);
         if (Math.abs(e - bd.e) > 0.004) { bd.ecke.style.opacity = e.toFixed(3); bd.e = e; }
@@ -266,7 +287,7 @@
     root.classList.add('scrub');
     addEventListener('scroll', onScroll, { passive: true });
     bands.forEach(b => { b.op = -1; b.k = -1; b.e = -1; b.inert = null; });
-    lastT = ''; lastD = -1; lastW = -1; lastCue = -1;
+    lastT = ''; lastD = -1; lastW = -1; lastCue = -1; lastNacht = -1;
     masseLesen();
     target = shown = progress();
     render(shown);
