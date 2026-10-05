@@ -129,7 +129,7 @@ html.vorschau .vorschau-hinweis{display:block;margin:0;padding:12px 14px;border-
 .nachtschleier{display:none;position:absolute;inset:0;pointer-events:none;background:#07080b;opacity:0;will-change:opacity}
 html.scrub .nachtschleier{display:block}
 .nacht{display:none}
-html.scrub .nacht{display:block;position:relative;z-index:2;height:100vh;margin-top:-100vh;pointer-events:none;
+html.scrub .nacht{display:block;position:relative;z-index:2;height:90vh;margin-top:-90vh;pointer-events:none;   /* so lang wie die Ausfahrt */
   background:linear-gradient(180deg,rgba(16,17,22,0) 0%,rgba(16,17,22,.5) 30%,rgba(16,17,22,.86) 55%,rgba(16,17,22,.98) 78%,var(--canvas) 100%)}
 html.scrub .crew{position:relative;z-index:3;margin-top:-26vh;padding-top:24px}
 /* Unter dem Held läuft die flache Seitenfarbe weich in den Hintergrund mit Dunst aus (sonst bleibt eine Kante) */
@@ -201,7 +201,7 @@ html.scrub .ecke{display:block}
 .ring.fertig{opacity:0}
 
 /* Scroll-Modus (JavaScript an, keine reduzierte Bewegung) */
-html.scrub .hero{height:670vh}   /* 520vh Torfahrt + 150vh Rausfahren */
+html.scrub .hero{height:610vh}   /* 520vh Torfahrt + 90vh Rausfahren (Werte auch in site.js: HELD_VH, TOR_VH) */
 html.scrub .wrap{position:sticky;top:0;background:#0b0b0f}
 html.scrub .stage{display:block}
 html.scrub .bands{display:block}
@@ -449,9 +449,11 @@ body.paused *,body.paused *::before,body.paused *::after{animation-play-state:pa
   .station{padding-top:0}
   .symbol{width:68px;height:68px;margin-bottom:16px}
   .symbol svg{width:32px;height:32px}
-  .auspuff-feld{display:none}
   .antreten-box{border-radius:24px}
 }
+/* Der Auspuff braucht neben dem Inhalt (höchstens 1180 px breit) mindestens 84 px Rand, sonst liegt er auf der Schrift
+   (iPads, kleinere Laptops). Darunter fällt er weg. */
+@media (max-width:1347px){.auspuff-feld{display:none}}
 
 /* ---------- Reduzierte Bewegung: alles im Endzustand ---------- */
 @media (prefers-reduced-motion:reduce){

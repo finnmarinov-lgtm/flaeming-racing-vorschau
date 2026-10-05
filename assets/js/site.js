@@ -124,6 +124,7 @@
   const ring = $('.ring', hero);
   const cue = $('.cue', hero);
   const VW = 2752, VH = 1536, FX = 1378, FY = 760;
+  const HELD_VH = 6.1, TOR_VH = 4.2;   // Held 610vh hoch (wie in site.css), davon 420vh Scrollweg für die Torfahrt, Rest Ausfahrt
   // Toröffnung im Bild (870..1885 x 292..1175), etwas nach innen gerückt: Am Ende der Ausfahrt liegt der Ausschnitt ganz darin
   const OEFFNUNG = { x0: 884, x1: 1871, y0: 332, y1: 1135 };
   const szene = {
@@ -137,8 +138,8 @@
     masse.top = hero.getBoundingClientRect().top + scrollY;
     masse.h = hero.offsetHeight;
     masse.range = Math.max(1, masse.h - innerHeight);
-    // Die Torfahrt belegt 420vh der Scrollstrecke, danach kommt die Ausfahrt (150vh). Held ist 670vh hoch.
-    masse.ende = root.classList.contains('scrub') ? Math.min(1, (4.2 * masse.h / 6.7) / masse.range) : 1;
+    // Die Torfahrt belegt 420vh der Scrollstrecke, danach kommt die Ausfahrt (90vh).
+    masse.ende = root.classList.contains('scrub') ? Math.min(1, (TOR_VH * masse.h / HELD_VH) / masse.range) : 1;
     hero.dataset.ende = masse.ende.toFixed(4);   // für die Prüfwerkzeuge
     // Ausfahrt: so weit heranfahren, dass Torrahmen, Sturz und Boden ganz aus dem Bild sind (am Laptop mehr als am Handy)
     const s0 = Math.max(masse.bw / VW, masse.bh / VH), o = OEFFNUNG;
@@ -305,6 +306,71 @@
   function heldModus() {
     if (RM.matches || bildFehler) scrubAus(); else scrubEin();
   }
+
+  /* Ausfahrt mit einem Wisch. Wer im Übergang (zwischen „Fahr mit uns raus.“ und der Nacht) loslässt, wird in einer
+     ruhigen Kamerafahrt weitergefahren: nach unten bis in die Nacht, wenn die Geste bei Band 4 begann, sonst zurück zu
+     Band 4 (wer aus der Torfahrt darüber hinausschießt, sieht so den Schluss). Nach oben immer zurück zum offenen Tor.
+     Nur nach echter Eingabe (Finger, Mausrad, Tasten), nie während ein Finger auf dem Bildschirm liegt; jede neue
+     Berührung oder Gegenrichtung am Mausrad hält die Fahrt sofort an. */
+  const hatScrollEnde = 'onscrollend' in window;
+  let richtung = 0, letztesY = scrollY, letzterScroll = 0, eingabe = -1e9, gestenStart = 0, letztesRad = 0;
+  let finger = false, gleit = null, ruheTimer = 0;
+  const uebergang = () => [masse.top + masse.range * masse.ende, masse.top + masse.range];
+  function gleitStopp() {
+    if (!gleit) return;
+    cancelAnimationFrame(gleit.raf);
+    gleit = null;
+    root.style.scrollBehavior = '';
+  }
+  function gleiten(ziel) {
+    const start = scrollY, weg = ziel - start, t0 = performance.now();
+    const dauer = clamp(380 + Math.abs(weg) * 0.75, 450, 1300);
+    root.style.scrollBehavior = 'auto';   // sonst glättet der Browser jeden Schritt noch einmal (scroll-behavior: smooth)
+    gleit = { weg, raf: 0 };
+    const schritt = now => {
+      if (!gleit) return;
+      const k = clamp((now - t0) / dauer, 0, 1);
+      scrollTo(0, Math.round(start + weg * easeIO(k)));
+      if (k < 1) gleit.raf = requestAnimationFrame(schritt); else gleitStopp();
+    };
+    gleit.raf = requestAnimationFrame(schritt);
+  }
+  function ruhe() {
+    if (!scrubAn || gleit || finger || performance.now() - eingabe > 4000) return;
+    const [a, b] = uebergang(), y0 = scrollY;
+    if (b - a < 40 || y0 <= a + 12 || y0 >= b - 12) return;
+    // erst losfahren, wenn die Seite wirklich steht (zwei Bilder lang keine Bewegung, z. B. Schwung auf dem iPhone)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      if (gleit || finger) return;
+      if (Math.abs(scrollY - y0) > 1) { ruheSpaeter(); return; }
+      gleiten(richtung > 0 && gestenStart >= a - 12 ? b : a);
+    }));
+  }
+  // Ende des Scrollens erkennen: „scrollend“, wo es das gibt, sonst 160 ms ohne Bewegung
+  function ruheSpaeter() {
+    clearTimeout(ruheTimer);
+    ruheTimer = setTimeout(() => { if (performance.now() - letzterScroll < 140) ruheSpaeter(); else ruhe(); }, 160);
+  }
+  addEventListener('scroll', () => {
+    const y = scrollY;
+    letzterScroll = performance.now();
+    if (Math.abs(y - letztesY) >= 2) { if (!gleit) richtung = Math.sign(y - letztesY); letztesY = y; }
+    if (!gleit) ruheSpaeter();
+  }, { passive: true });
+  if (hatScrollEnde) addEventListener('scrollend', ruhe);
+  const geste = () => { eingabe = performance.now(); gestenStart = scrollY; };
+  addEventListener('touchstart', () => { finger = true; gleitStopp(); geste(); }, { passive: true });
+  const fingerWeg = e => { if (e.touches.length) return; finger = false; eingabe = performance.now(); ruheSpaeter(); };
+  addEventListener('touchend', fingerWeg, { passive: true });
+  addEventListener('touchcancel', fingerWeg, { passive: true });
+  addEventListener('wheel', e => {
+    const jetzt = performance.now();
+    if (gleit && Math.sign(e.deltaY) !== Math.sign(gleit.weg)) gleitStopp();
+    if (jetzt - letztesRad > 250 && !gleit) gestenStart = scrollY;   // neue Mausrad-Geste
+    letztesRad = eingabe = jetzt;
+  }, { passive: true });
+  addEventListener('keydown', () => { gleitStopp(); geste(); });
+  addEventListener('mousedown', () => { gleitStopp(); geste(); });
 
   new IntersectionObserver(([e]) => {
     onScreen = e.isIntersecting;
