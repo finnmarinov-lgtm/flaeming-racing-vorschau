@@ -202,12 +202,15 @@ html.scrub .ecke{display:block}
 
 /* Scroll-Modus (JavaScript an, keine reduzierte Bewegung) */
 html.scrub .hero{height:610vh}   /* 520vh Torfahrt + 90vh Rausfahren (Werte auch in site.js: HELD_VH, TOR_VH) */
-html.scrub .wrap{position:sticky;top:0;background:#0b0b0f}
+/* Die Bühne klebt beim Scrollen und ist so hoch wie der größte Bildschirm (Adressleiste am Handy weggeklappt).
+   Mit 100svh wurde unten ein dunkler Streifen frei, sobald die Leiste beim ersten Wischen verschwand. */
+html.scrub .wrap{position:sticky;top:0;background:#0b0b0f;height:100vh;height:100lvh}
 html.scrub .stage{display:block}
 html.scrub .bands{display:block}
 html.scrub .statisch{display:none}
-html.scrub .cue{display:flex}
-html.scrub .ring{display:block}
+/* Hinweis und Ladering bleiben über der Adressleiste sichtbar, solange sie noch da ist */
+html.scrub .cue{display:flex;bottom:calc(28px + 100lvh - 100svh)}
+html.scrub .ring{display:block;bottom:calc(22px + 100lvh - 100svh)}
 
 /* ---------- Auspuff: das Markenzeichen am linken Rand ---------- */
 .auspuff-feld{position:absolute;left:0;width:90px;pointer-events:none;z-index:3}   /* über der Nacht, wie die Crew */
